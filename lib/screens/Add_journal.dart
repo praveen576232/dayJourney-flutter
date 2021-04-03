@@ -1,15 +1,13 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:daybook/screens/DisplayDayBook.dart';
 import 'package:daybook/services/database/database.dart';
 import 'package:daybook/utils/converter.dart';
 import 'package:daybook/utils/utils.dart';
 import 'package:daybook/widgets/SelectImage.dart';
 import 'package:daybook/widgets/Tags.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class AddJournal extends StatefulWidget {
   var selctedimages;
@@ -39,12 +37,13 @@ class _AddJournalState extends State<AddJournal> {
   bool loading = false;
   List<String> nowSelectedImages = [];
   User user;
+  var dateTime;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     user = FirebaseAuth.instance.currentUser;
-
+  dateTime=  ValueNotifier(widget.currentDateTime);
     if (widget.text != null && widget.text.trim() != "") {
       _textEditingController.text = widget.text;
     }
@@ -56,6 +55,8 @@ class _AddJournalState extends State<AddJournal> {
     _textEditingController.dispose();
     super.dispose();
   }
+
+  var text = ValueNotifier("");
 
   @override
   Widget build(BuildContext context) {
@@ -145,45 +146,51 @@ class _AddJournalState extends State<AddJournal> {
                             padding: EdgeInsets.only(
                                 left: 10, right: 10, top: 20, bottom: 15),
                             child: Row(children: [
-                              Container(
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                    RichText(
-                                      text: TextSpan(
-                                        text: widget.currentDateTime?.day
-                                                .toString() +
-                                            " ",
-                                        style: TextStyle(
-                                            color: Colors.green,
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold),
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text: widget.currentDateTime != null
-                                                ? converter
-                                                    .convertNumberToMonthName(
-                                                        widget.currentDateTime
-                                                            ?.month)
-                                                : "",
-                                            style:
-                                                TextStyle(color: Colors.black),
+                              ValueListenableBuilder(
+                                  valueListenable: dateTime,
+                                  builder: (context, time, child) {
+                                    return Container(
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                          RichText(
+                                            text: TextSpan(
+                                              text: time?.day
+                                                      .toString() +
+                                                  " ",
+                                              style: TextStyle(
+                                                  color: Colors.green,
+                                                  fontSize: 25,
+                                                  fontWeight:
+                                                      FontWeight.bold),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text:  time !=
+                                                          null
+                                                      ? converter
+                                                          .convertNumberToMonthName(
+                                                              time
+                                                                  ?.month)
+                                                      : "",
+                                                  style: TextStyle(
+                                                      color: Colors.black),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                    Text(
-                                        widget.currentDateTime?.year
-                                                .toString() +
-                                            " " +
-                                            converter
-                                                .convertNumberToWeekDayName(
-                                                    widget.currentDateTime
-                                                        ?.weekday),
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 13.0))
-                                  ])),
+                                          Text(
+                                              time?.year
+                                                      .toString() +
+                                                  " " +
+                                                  converter
+                                                      .convertNumberToWeekDayName(
+                                                          time?.weekday),
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 13.0))
+                                        ]));
+                                  }),
                               IconButton(
                                   icon: Icon(Icons.calendar_today,
                                       color: Colors.grey),
@@ -193,26 +200,29 @@ class _AddJournalState extends State<AddJournal> {
                                               await showDatePicker(
                                                   context: context,
                                                   initialDate:
-                                                      widget.currentDateTime,
-                                                  firstDate: DateTime(widget
-                                                          .currentDateTime
-                                                          .year -
-                                                      5),
+                                                        dateTime.value,
+                                                  firstDate:
+                                                      DateTime(
+                                                         dateTime.value
+                                                                  .year -
+                                                              5),
                                                   lastDate:
-                                                      widget.currentDateTime);
+                                                      dateTime.value);
 
                                           if (selecteddate != null &&
                                               selecteddate !=
-                                                  widget.currentDateTime) {
-                                            setState(() {
-                                              widget.currentDateTime = DateTime(
-                                                  selecteddate.year,
-                                                  selecteddate.month,
-                                                  selecteddate.day,
-                                                  widget.currentDateTime.hour,
-                                                  widget
-                                                      .currentDateTime.minute);
-                                            });
+                                                dateTime.value) {
+                                           
+                                             dateTime.value =
+                                                  DateTime(
+                                                      selecteddate.year,
+                                                      selecteddate.month,
+                                                      selecteddate.day,
+                                                     dateTime.value
+                                                          .hour,
+                                                     dateTime.value
+                                                          .minute);
+                                           
                                           }
                                         }
                                       : null)
@@ -220,36 +230,44 @@ class _AddJournalState extends State<AddJournal> {
                         Container(
                             child: Row(
                           children: [
-                            Text(
-                              converter.convert24To12(
-                                  widget.currentDateTime.hour,
-                                  widget.currentDateTime.minute),
-                              style: TextStyle(
-                                  color: Colors.green,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
+                            ValueListenableBuilder(
+                              valueListenable: dateTime,
+                                                            builder:(context,time,child){
+return Text(
+                                converter.convert24To12(
+                                  time.hour,
+                                  time.minute),
+                                                           
+                                style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              );
+                               } 
                             ),
                             IconButton(
-                                icon:
-                                    Icon(Icons.lock_clock, color: Colors.grey),
+                                icon: Icon(Icons.lock_clock,
+                                    color: Colors.grey),
                                 onPressed: !loading
                                     ? () async {
-                                        var selectedTime = await showTimePicker(
-                                            context: context,
-                                            initialTime: TimeOfDay.now());
+                                        var selectedTime =
+                                            await showTimePicker(
+                                                context: context,
+                                                initialTime: TimeOfDay.now());
                                         if (selectedTime != null &&
-                                            !(widget.currentDateTime.hour ==
+                                            !(dateTime.value.hour ==
                                                     selectedTime.hour &&
-                                                widget.currentDateTime.minute ==
+                                               dateTime.value
+                                                        .minute ==
                                                     selectedTime.minute)) {
-                                          setState(() {
-                                            widget.currentDateTime = DateTime(
-                                                widget.currentDateTime.year,
-                                                widget.currentDateTime.month,
-                                                widget.currentDateTime.day,
+                                          
+                                           dateTime.value = DateTime(
+                                                dateTime.value.year,
+                                              dateTime.value.month,
+                                               dateTime.value.day,
                                                 selectedTime.hour,
                                                 selectedTime.minute);
-                                          });
+                                         
                                         }
                                       }
                                     : null)
@@ -296,6 +314,9 @@ class _AddJournalState extends State<AddJournal> {
                       readOnly: loading ? true : false,
                       textAlign: TextAlign.justify,
                       cursorColor: Colors.red,
+                      onChanged: (value) {
+                        text.value = value;
+                      },
                       decoration: InputDecoration(
                           hintText: "Write here", border: InputBorder.none),
                       maxLines: null,
@@ -311,50 +332,51 @@ class _AddJournalState extends State<AddJournal> {
             height: 50,
             decoration: BoxDecoration(
                 border: Border(top: BorderSide(color: Colors.grey[400]))),
-            child: Column(
-              children: [
-                FlatButton(
-                    child: Text(widget.update ? "Update" : "Upload"),
-                    onPressed: !loading
-                        ? () async {
-                            setState(() {
-                              loading = true;
-                            });
-                            if (widget.update) {
-                              await updateDayBook(
-                                  context,
-                                  user,
-                                  widget.id,
-                                  _textEditingController.text,
-                                  widget.currentDateTime,
-                                  widget.selectedTags,
-                                  widget.selctedimages,
-                                  nowSelectedImages,
-                                  loading
-                                  );
-                              
-                           
-                            
-                            } else {
-                              await uploadDayBook(
-                                  nowSelectedImages,
-                                  context,
-                                  user,
-                                  widget.selectedTags,
-                                  widget.currentDateTime,
-                                  _textEditingController.text,
-                                     loading
-                                  );
-                             
+            child: ValueListenableBuilder(
+                valueListenable: text,
+                builder: (context, textfiled, child) {
+                  return RaisedButton(
+                      color: utils.uploadButtonColor,
+                      child: Text(widget.update ? "Update" : "Upload",
+                          style: TextStyle(
+                              color: utils.uploadButtonTextColor,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 2.0,
+                              fontSize: 20)),
+                      onPressed: !loading &&
+                             widget.update || (textfiled != null &&
+                              textfiled.trim() != "")
+                          ? () async {
+                              setState(() {
+                                loading = true;
+                              });
+                              if (widget.update) {
+                                await updateDayBook(
+                                    context,
+                                    user,
+                                    widget.id,
+                                    _textEditingController.text,
+                                   dateTime.value,
+                                    widget.selectedTags,
+                                    widget.selctedimages,
+                                    nowSelectedImages,
+                                    loading);
+                              } else {
+                                await uploadDayBook(
+                                    nowSelectedImages,
+                                    context,
+                                    user,
+                                    widget.selectedTags,
+                                  dateTime.value,
+                                    _textEditingController.text,
+                                    loading);
+                              }
                             }
-                          }
-                        : null)
-              ],
-            )));
+                          : null);
+                })));
   }
 
   showselectedImages() {
- 
     return ListView.builder(
       shrinkWrap: true,
       reverse: false,
@@ -370,7 +392,7 @@ class _AddJournalState extends State<AddJournal> {
             widget.selctedimages.length > index) {
           netwotkimage = Map.from(widget.selctedimages[index]);
         }
-     
+
         return Padding(
             padding: const EdgeInsets.all(8.0),
             child: index ==

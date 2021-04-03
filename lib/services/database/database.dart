@@ -14,7 +14,8 @@ updateDayBook(
     DateTime currentDateTime,
     List<String> selectedTags,
     dynamic selctedimages,
-    List<String> nowSelectedImages,bool loading) async {
+    List<String> nowSelectedImages,bool loading
+    ) async {
   DocumentReference ref = FirebaseFirestore.instance
       .collection("daybooks")
       .doc(user.email)

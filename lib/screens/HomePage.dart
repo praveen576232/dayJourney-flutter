@@ -38,7 +38,6 @@ class _HomePageState extends State<HomePage> {
         .listen((docs) {
       data.clear();
       docs.docs.forEach((element) {
-     
         var feachdata = element.data();
         feachdata['id'] = element.id;
         setState(() {
@@ -63,7 +62,9 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: utils.appbgcolor,
           title: Text("DayBook",
               style: TextStyle(
-                  color: utils.appbartext, fontWeight: FontWeight.bold,fontSize: utils.appbartextsize)),
+                  color: utils.appbartext,
+                  fontWeight: FontWeight.bold,
+                  fontSize: utils.appbartextsize)),
           actions: [
             IconButton(
                 icon: Icon(Icons.search, color: Colors.black),
@@ -73,7 +74,22 @@ class _HomePageState extends State<HomePage> {
                       MaterialPageRoute(
                           builder: (context) =>
                               Search(user: widget.user, size: size)));
-                })
+                }),
+            Container(
+                height: 30,
+                width: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.lightGreenAccent,
+                ),
+                child: widget.user.photoURL != null
+                    ? Image.network(widget.user.photoURL)
+                    : Center(
+                  child: Text(widget.user.email[0],
+                          style: TextStyle(
+                            fontSize: 25,
+                              color: Colors.white, fontWeight: FontWeight.bold)),
+                ))
           ]),
       body: Container(
           child: data != null && data.length > 0
@@ -96,14 +112,12 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(
                   builder: (context) => AddJournal(
-                       
-                        currentDateTime: DateTime.now(),
-                        selctedimages: [],
-                        selectedTags: [],
-                        text: null,
-                        update: false,
-                        id:null
-                      )));
+                      currentDateTime: DateTime.now(),
+                      selctedimages: [],
+                      selectedTags: [],
+                      text: null,
+                      update: false,
+                      id: null)));
         },
       ),
     );
