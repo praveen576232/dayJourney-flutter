@@ -1,17 +1,13 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:daybook/screens/Add_journal.dart';
-import 'package:daybook/screens/DisplayDayBook.dart';
 import 'package:daybook/screens/Profile.dart';
 import 'package:daybook/screens/Search.dart';
-import 'package:daybook/utils/converter.dart';
 import 'package:daybook/utils/utils.dart';
 import 'package:daybook/widgets/AnimatePageTransition.dart';
 import 'package:daybook/widgets/CircleImage.dart';
 import 'package:daybook/widgets/ShowDayBook.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -96,8 +92,9 @@ class _HomePageState extends State<HomePage> {
                             ),
                             alignment: Alignment.topRight))
                     .then((updatedUser) {
-                  if ((updatedUser.displayName != user.value.displayName) ||
-                      (updatedUser.photoURL != user.value.photoURL)) {
+                  if (updatedUser != null &&
+                      ((updatedUser.displayName != user.value.displayName) ||
+                          (updatedUser.photoURL != user.value.photoURL))) {
                     user.value = updatedUser;
                   }
                 });
@@ -116,7 +113,10 @@ class _HomePageState extends State<HomePage> {
                       dayBook: dayBook,
                     );
                   })
-              : Center(child: CircularProgressIndicator())),
+              : Center(
+                  child: sizeDoc == 0
+                      ? Text('Add Note By Clicking a add button')
+                      : CircularProgressIndicator())),
       floatingActionButton: FloatingActionButton(
         backgroundColor: utils.floatingActionButton,
         child: Icon(Icons.add),

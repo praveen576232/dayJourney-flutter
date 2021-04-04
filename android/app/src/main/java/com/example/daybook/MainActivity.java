@@ -25,12 +25,16 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
+    MethodChannel.Result myresult;
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if(requestCode==100){
             if(grantResults.length>0 &&  grantResults[0]== PackageManager.PERMISSION_GRANTED  ){
                 System.out.println("permistion suc");
+                myresult.success(true);
             }else{
+                myresult.success(false);
                 System.out.println("permistion faill");
             }
         }
@@ -59,9 +63,11 @@ myresult.add(cursor.getString(image_path_col));
             }else if(call.method.equals("permision")){
 
                 if(ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_DENIED){
-
+                    myresult = result;
                     requestpermsion();
                     
+                }else{
+                    result.success(true);
                 }
              
 

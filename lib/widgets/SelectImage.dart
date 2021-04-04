@@ -13,72 +13,59 @@ class SelectImage extends StatefulWidget {
 
 class _SelectImageState extends State<SelectImage> {
   List<String> selectedImages = [];
-  bool permistionCheck = false;
+
   MethodChannel _methodChannel = MethodChannel("daybook");
-  Future<List<String>> getAllImages(BuildContext context) async {
-    bool permistion = await _methodChannel.invokeMethod('checkPermistion');
-    print("permistion0 " + permistion.toString());
-    if (permistion) {
-      List<String> data = await feachImages();
+
+
+  Future<List<String>> feachImages(BuildContext context) async {
+    bool result = await _methodChannel.invokeMethod('permision');
+    var images;
+    if (result) {
+      images = await _methodChannel.invokeMethod("images");
+      List<String> data = images.cast<String>();
       return data;
     } else {
-      print("permistionnnnnm denied");
-      await _methodChannel.invokeMethod('permision');
-      bool permistioncheck =
-          await _methodChannel.invokeMethod('checkPermistion');
-      if (permistioncheck) {
-        print("permistion 2 allow");
-        List<String> data = await feachImages();
-        return data;
-      } else {
-        print("permistion2 denied");
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content:
-                    Text("Allow permistion to get a images from your gallary."),
-                title: Text("Allow permistion"),
-                actions: [
-                  FlatButton(
-                      onPressed: () async {
-                        List<String> data = await feachImages();
+    
+      await showDialog(
+        barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content:
+                  Text("Allow permistion to get a images from your gallary."),
+              title: Text("Allow permistion"),
+              actions: [
+                FlatButton(
+                    onPressed: () async {
+                      bool nowresult =
+                          await _methodChannel.invokeMethod('permision');
+                      if (nowresult) {
+                     
+                        images = await _methodChannel.invokeMethod("images");
+                        List<String> data = images.cast<String>();
+                      
+                        Navigator.pop(context);
                         return data;
-                      },
-                      child: Text("Allow")),
-                  FlatButton(
-                      onPressed: () {
+                      } else {
                         int count = 0;
                         Navigator.of(context).popUntil((_) => count++ >= 2);
-                      },
-                      child: Text("Deny")),
-                ],
-              );
-            });
-      }
+                      }
+                    },
+                    child: Text("Allow")),
+                FlatButton(
+                    onPressed: () {
+                      int count = 0;
+                      Navigator.of(context).popUntil((_) => count++ >= 2);
+                    },
+                    child: Text("Deny")),
+              ],
+            );
+          });
+      return images;
     }
   }
 
-  Future<List<String>> feachImages() async {
-    var images = await _methodChannel.invokeMethod("images");
-    List<String> data = images.cast<String>();
-    return data;
-  }
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  checkPermistion() async {
-    bool permistion = await _methodChannel.invokeMethod('checkPermistion');
-    setState(() {
-      permistionCheck = permistion;
-    });
-    if (!permistionCheck) {
-      await _methodChannel.invokeMethod('permision');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +96,7 @@ class _SelectImageState extends State<SelectImage> {
           ],
         ),
         body: FutureBuilder(
-            future: getAllImages(context),
+            future: feachImages(context),
             builder: (context, snapshot) {
               return snapshot.hasData
                   ? GridView.builder(

@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:daybook/services/database/database.dart';
 import 'package:daybook/utils/converter.dart';
+import 'package:daybook/utils/custome_icon_icons.dart';
 import 'package:daybook/utils/utils.dart';
 import 'package:daybook/widgets/SelectImage.dart';
 import 'package:daybook/widgets/Tags.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+
 
 class AddJournal extends StatefulWidget {
   var selctedimages;
@@ -59,6 +59,7 @@ class _AddJournalState extends State<AddJournal> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
           backgroundColor: utils.appbgcolor,
@@ -168,7 +169,7 @@ class _AddJournalState extends State<AddJournal> {
                                         ]));
                                   }),
                               IconButton(
-                                  icon: Icon(Icons.calendar_today,
+                                  icon: Icon(CustomeIcon.calendar,
                                       color: Colors.grey),
                                   onPressed: !loading
                                       ? () async {
@@ -209,7 +210,7 @@ class _AddJournalState extends State<AddJournal> {
                                 }),
                             IconButton(
                                 icon:
-                                    Icon(Icons.lock_clock, color: Colors.grey),
+                                    Icon(CustomeIcon.access_time, color: Colors.grey),
                                 onPressed: !loading
                                     ? () async {
                                         var selectedTime = await showTimePicker(
@@ -233,7 +234,7 @@ class _AddJournalState extends State<AddJournal> {
                         )),
                       ]),
                   Container(
-                    height: 100,
+                    height: size.height*0.12,
                     child: (widget.selctedimages != null &&
                                 widget.selctedimages.isNotEmpty) ||
                             (nowSelectedImages.length > 0)
@@ -242,7 +243,7 @@ class _AddJournalState extends State<AddJournal> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Container(
-                                height: 65,
+                                height: size.height*0.1,
                                 width: 75,
                                 decoration: BoxDecoration(
                                     border: Border.all(
@@ -258,7 +259,7 @@ class _AddJournalState extends State<AddJournal> {
                                             builder: (context) => SelectImage(
                                                   selectOnlyOneImage: false,
                                                 )));
-                                    if (images != null && images.length> 0) {
+                                    if (images != null && images.length > 0) {
                                       setState(() {
                                         nowSelectedImages.addAll(images);
                                       });

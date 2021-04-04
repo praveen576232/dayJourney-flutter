@@ -22,7 +22,7 @@ class _EmailVerfiState extends State<EmailVerfi> {
 
   checkEmailVerfication(_) {
     user = FirebaseAuth.instance.currentUser;
-   
+    user.reload();
     if (user.emailVerified) {
       timer.cancel();
       Navigator.pushReplacement(
@@ -44,7 +44,8 @@ class _EmailVerfiState extends State<EmailVerfi> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text("An email ${user.email} has just been sent to you. Click the link provider to complete registration."),
+        Text(
+            "An email ${user.email} has just been sent to you. Click the link provider to complete registration."),
         SizedBox(height: 20),
         CircularProgressIndicator()
       ],

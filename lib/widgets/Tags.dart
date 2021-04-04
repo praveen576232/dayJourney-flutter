@@ -1,3 +1,4 @@
+import 'package:daybook/utils/custome_icon_icons.dart';
 import 'package:flutter/material.dart';
 
 class Tags extends StatefulWidget {
@@ -51,18 +52,18 @@ class _TagsState extends State<Tags> {
 
         children: [
           tag(Icons.family_restroom_rounded, "family"),
-          tag(Icons.person_rounded, "friends"),
+          tag(CustomeIcon.user_friends, "friends"),
           tag(Icons.favorite, "date"),
-          tag(Icons.extension_rounded, "exercise"),
+          tag(CustomeIcon.exercise, "exercise"),
           tag(Icons.sports_baseball, "sports"),
           tag(Icons.chrome_reader_mode, "reading"),
-          tag(Icons.games, "gaming"),
-          tag(Icons.family_restroom_rounded, "cleaning"),
-          tag(Icons.family_restroom_rounded, "shopping"),
-          tag(Icons.family_restroom_rounded, "relax"),
-          tag(Icons.family_restroom_rounded, "sleep early"),
-          tag(Icons.family_restroom_rounded, "movies"),
-          tag(Icons.family_restroom_rounded, "eat healthy"),
+          tag(CustomeIcon.gamepad, "gaming"),
+          tag(Icons.clean_hands, "cleaning"),
+          tag(CustomeIcon.shopping_cart, "shopping"),
+       
+          tag(CustomeIcon.bed, "sleep early"),
+          tag(CustomeIcon.local_movies, "movies"),
+          tag(CustomeIcon.fast_food, "eat healthy"),
         ],
       ),
     );
