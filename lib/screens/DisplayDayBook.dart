@@ -10,24 +10,23 @@ class DisplayDayBook extends StatelessWidget {
   DateTime dateTime;
   String text;
   String id;
-  
-  DisplayDayBook(
-      {@required this.images,
-      @required this.tags,
-      @required this.dateTime,
-      @required this.id,
-      @required this.text,
-   
-      });
+
+  DisplayDayBook({
+    @required this.images,
+    @required this.tags,
+    @required this.dateTime,
+    @required this.id,
+    @required this.text,
+  });
 
   Widget displayTag(String tagName) {
     return Container(
         padding: EdgeInsets.all(8.0),
         height: 30,
         decoration: BoxDecoration(
-            color: Colors.grey.shade400,
+            color: utils.tagbgColor,
             borderRadius: BorderRadius.all(Radius.circular(8.0))),
-        child: Text(tagName));
+        child: Text(tagName, style: TextStyle(color: utils.tagTextColor)));
   }
 
   Widget header() {
@@ -97,6 +96,11 @@ class DisplayDayBook extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: utils.appbgcolor,
           title: header(),
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.arrow_back, color: Colors.black)),
           actions: [
             IconButton(
                 icon: Icon(Icons.mode_edit, color: Colors.black),
@@ -105,13 +109,14 @@ class DisplayDayBook extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) => AddJournal(
-                            currentDateTime: dateTime,
-                            selctedimages:images!=null ? List.from(images):null,
-                            selectedTags:tags!=null ? List.from(tags):null,
-                            text: text,
-                            update:true,
-                            id:id
-                            )));
+                              currentDateTime: dateTime,
+                              selctedimages:
+                                  images != null ? List.from(images) : null,
+                              selectedTags:
+                                  tags != null ? List.from(tags) : null,
+                              text: text,
+                              update: true,
+                              id: id)));
                 })
           ],
         ),
@@ -125,12 +130,13 @@ class DisplayDayBook extends StatelessWidget {
                   tags != null
                       ? Container(
                           child: Wrap(
+                          spacing: 5.0,
                           children: List.from(tags)
                               .map((tag) => displayTag(tag))
                               .toList(),
                         ))
                       : Offstage(),
-                  images != null
+                  images != null && images.length > 0
                       ? Padding(
                           padding: const EdgeInsets.only(top: 4.0, bottom: 8),
                           child: Carousel(

@@ -20,27 +20,48 @@ class _SearchState extends State<Search> {
   TextEditingController _textEditingController = TextEditingController();
   bool loading = false;
   getSearchResult(String text) {
-    FirebaseFirestore.instance
-        .collection("daybooks")
-        .doc(widget.user.email)
-        .collection(widget.user.uid)
-        .orderBy('dayNote')
-        .startAt([text])
-        .snapshots()
-        .listen((docs) {
-          databook.clear();
-          docs.docs.forEach((element) {
-            print(element.id);
-            setState(() {
-              databook.add(element.data());
-            });
+    if (utils.tags.contains(text)) {
+      FirebaseFirestore.instance
+          .collection("daybooks")
+          .doc(widget.user.email)
+          .collection(widget.user.uid)
+          .where('tags', arrayContains: text)
+          .orderBy('dateTime')
+          .snapshots()
+          .listen((docs) {
+        databook.clear();
+        docs.docs.forEach((element) {
+          var feachdata = element.data();
+          feachdata['id'] = element.id;
+          setState(() {
+            databook.add(feachdata);
           });
         });
-    _textEditingController.text = "";
+      });
+      _textEditingController.text = "";
+    } else {
+      FirebaseFirestore.instance
+          .collection("daybooks")
+          .doc(widget.user.email)
+          .collection(widget.user.uid)
+          .orderBy('dayNote')
+          .startAt([text])
+          .snapshots()
+          .listen((docs) {
+            databook.clear();
+            docs.docs.forEach((element) {
+              var feachdata = element.data();
+              feachdata['id'] = element.id;
+              setState(() {
+                databook.add(feachdata);
+              });
+            });
+          });
+      _textEditingController.text = "";
+    }
   }
 
   searchByDate(DateTime date) {
-    // data.clear();
     FirebaseFirestore.instance
         .collection("daybooks")
         .doc(widget.user.email)
@@ -52,12 +73,12 @@ class _SearchState extends State<Search> {
         .listen((docs) {
       databook.clear();
       docs.docs.forEach((element) {
-        print(element.id);
-        var mydata = element.data();
-        print(mydata);
-        if (mydata != null) {
+        var feachdata = element.data();
+        feachdata['id'] = element.id;
+
+        if (feachdata != null) {
           setState(() {
-            databook.add(mydata);
+            databook.add(feachdata);
           });
         }
       });
@@ -83,6 +104,8 @@ class _SearchState extends State<Search> {
               }),
           title: TextField(
             controller: _textEditingController,
+            decoration: InputDecoration(
+                border: InputBorder.none, hintText: "Search by Text/Tag"),
             autofocus: true,
             textInputAction: TextInputAction.search,
             onSubmitted: (text) {
@@ -110,7 +133,6 @@ class _SearchState extends State<Search> {
                 child: ListView.builder(
                     itemCount: databook.length,
                     itemBuilder: (context, index) {
-                      print(databook[0]['dateTime']);
                       final dayBook = databook[index];
                       return ShowDayBook(
                         size: widget.size,

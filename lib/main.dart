@@ -1,5 +1,5 @@
-
 import 'package:daybook/screens/AuthScreen.dart';
+import 'package:daybook/screens/EmailVerfication.dart';
 
 import 'package:daybook/screens/HomePage.dart';
 import 'package:daybook/services/Auth/authentication_service.dart';
@@ -53,14 +53,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
-    
     final firebaseUser = context.watch<User>();
     if (firebaseUser != null) {
-     
-      return HomePage(user: firebaseUser);
+      if (firebaseUser.emailVerified)
+        return HomePage();
+      else
+        return EmailVerfi();
     } else {
       return AuthScreen();
     }

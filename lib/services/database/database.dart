@@ -14,8 +14,8 @@ updateDayBook(
     DateTime currentDateTime,
     List<String> selectedTags,
     dynamic selctedimages,
-    List<String> nowSelectedImages,bool loading
-    ) async {
+    List<String> nowSelectedImages,
+    bool loading) async {
   DocumentReference ref = FirebaseFirestore.instance
       .collection("daybooks")
       .doc(user.email)
@@ -88,7 +88,7 @@ updateDayBook(
     }
     int count = 0;
     Navigator.of(context).popUntil((_) => count++ >= 2);
-      loading = false;
+    loading = false;
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -156,5 +156,24 @@ uploadImages(List<String> _images, User user) async {
       });
     });
   }
+  return imageUrls;
+}
+
+uploadProfileImages(String _image, User user) async {
+  String imageUrls;
+
+  File file = File(_image);
+  firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+      .ref()
+      .child(user.uid)
+      .child("profileImage")
+      .child("profile");
+
+  await ref.putFile(file).whenComplete(() async {
+    await ref.getDownloadURL().then((value) {
+      imageUrls = value;
+    });
+  });
+
   return imageUrls;
 }

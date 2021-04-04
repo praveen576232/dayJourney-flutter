@@ -3,18 +3,18 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:daybook/screens/Add_journal.dart';
 import 'package:daybook/screens/DisplayDayBook.dart';
+import 'package:daybook/screens/Profile.dart';
 import 'package:daybook/screens/Search.dart';
 import 'package:daybook/utils/converter.dart';
 import 'package:daybook/utils/utils.dart';
+import 'package:daybook/widgets/AnimatePageTransition.dart';
+import 'package:daybook/widgets/CircleImage.dart';
 import 'package:daybook/widgets/ShowDayBook.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  User user;
-  HomePage({@required this.user});
-
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -23,7 +23,8 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription<QuerySnapshot> _subscription;
 
   List<Map<String, dynamic>> data = [];
-
+  int sizeDoc = 0;
+  var user = ValueNotifier(FirebaseAuth.instance.currentUser);
   @override
   void initState() {
     // TODO: implement initState
@@ -31,8 +32,8 @@ class _HomePageState extends State<HomePage> {
 
     _subscription = FirebaseFirestore.instance
         .collection("daybooks")
-        .doc(widget.user.email)
-        .collection(widget.user.uid)
+        .doc(user.value.email)
+        .collection(user.value.uid)
         .orderBy('dateTime', descending: true)
         .snapshots()
         .listen((docs) {
@@ -41,6 +42,7 @@ class _HomePageState extends State<HomePage> {
         var feachdata = element.data();
         feachdata['id'] = element.id;
         setState(() {
+          sizeDoc = docs.size;
           data.add(feachdata);
         });
       });
@@ -73,23 +75,34 @@ class _HomePageState extends State<HomePage> {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              Search(user: widget.user, size: size)));
+                              Search(user: user.value, size: size)));
                 }),
-            Container(
-                height: 30,
-                width: 30,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.lightGreenAccent,
-                ),
-                child: widget.user.photoURL != null
-                    ? Image.network(widget.user.photoURL)
-                    : Center(
-                  child: Text(widget.user.email[0],
-                          style: TextStyle(
-                            fontSize: 25,
-                              color: Colors.white, fontWeight: FontWeight.bold)),
-                ))
+            InkWell(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ValueListenableBuilder(
+                    valueListenable: user,
+                    builder: (context, currentUser, child) {
+                      return CircleImageView(user: user.value);
+                    }),
+              ),
+              onTap: () async {
+                Navigator.push(
+                        context,
+                        AnimatedPageTransition(
+                            screen: Profile(
+                              user: user.value,
+                              totleDocuments: sizeDoc,
+                            ),
+                            alignment: Alignment.topRight))
+                    .then((updatedUser) {
+                  if ((updatedUser.displayName != user.value.displayName) ||
+                      (updatedUser.photoURL != user.value.photoURL)) {
+                    user.value = updatedUser;
+                  }
+                });
+              },
+            )
           ]),
       body: Container(
           child: data != null && data.length > 0
@@ -110,14 +123,15 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => AddJournal(
+              AnimatedPageTransition(
+                  screen: AddJournal(
                       currentDateTime: DateTime.now(),
                       selctedimages: [],
                       selectedTags: [],
                       text: null,
                       update: false,
-                      id: null)));
+                      id: null),
+                  alignment: Alignment(0.8, 0.9)));
         },
       ),
     );

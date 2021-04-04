@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,22 +57,23 @@ myresult.add(cursor.getString(image_path_col));
 
 
             }else if(call.method.equals("permision")){
-                System.out.println("enter permistion");
 
                 if(ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_DENIED){
 
                     requestpermsion();
-                    result.success(true);
+                    
                 }
-//                if(ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_DENIED){
-//
-//                   System.out.println("permistion denied");
-//                   result.success(false);
-//                }else{
-//                    System.out.println("permistion granted");
-//                    result.success(true);
-//                }
+             
 
+            }else if(call.method.equals("checkPermistion")){
+               if(ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_DENIED){
+
+                  System.out.println("permistion denied");
+                  result.success(false);
+               }else{
+                   System.out.println("permistion granted");
+                   result.success(true);
+               }
             }
         });
         super.configureFlutterEngine(flutterEngine);
@@ -79,47 +82,26 @@ myresult.add(cursor.getString(image_path_col));
 
 
     }
-    private ArrayList<String>  getallimages(File file){
-        System.out.println("get image methode called");
-        System.out.println("methode  -->    "+file.getName());
-        ArrayList<String> images = new ArrayList<String>();
-        if(file.isDirectory()){
-            File [] files = file.listFiles();
-               System.out.println("all files lenght   -->    "+ files.length);
-            if(files !=null && files.length > 0){
-                for (File file1 : files){
-                    if(file1.isDirectory() && !file1.isHidden()){
-                        images.addAll(getallimages(file1));
-                    }else{
-                        if(file1.getName().endsWith(".jpg") || file1.getName().endsWith(".png")){
-                            System.out.println(file1.getName());
-                            images.add(file1.getPath());
-                        }
 
-                    }
-                }
-            }
-        }
-        return images;
-    }
     private void requestpermsion() {
 
         if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ){
-            new   AlertDialog.Builder(this)
-                    .setTitle("Accept a Permission")
-                    .setMessage("Read permission is required to Read  file , please Allow the permission to continued")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},100);
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    }).create().show();
+           ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},100);
+            // new   AlertDialog.Builder(this)
+            //         .setTitle("Accept a Permission")
+            //         .setMessage("Read permission is required to Read  file , please Allow the permission to continued")
+            //         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            //             @Override
+            //             public void onClick(DialogInterface dialog, int which) {
+                            
+            //             }
+            //         })
+            //         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            //             @Override
+            //             public void onClick(DialogInterface dialog, int which) {
+            //                 dialog.dismiss();
+            //             }
+            //         }).create().show();
         }else {
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},100);
         }

@@ -31,7 +31,6 @@ class _AddJournalState extends State<AddJournal> {
   Converter converter = Converter();
 
   List<String> tempselectedTags = [];
-  MethodChannel _methodChannel = MethodChannel("daybook");
 
   TextEditingController _textEditingController = TextEditingController();
   bool loading = false;
@@ -43,7 +42,7 @@ class _AddJournalState extends State<AddJournal> {
     // TODO: implement initState
     super.initState();
     user = FirebaseAuth.instance.currentUser;
-  dateTime=  ValueNotifier(widget.currentDateTime);
+    dateTime = ValueNotifier(widget.currentDateTime);
     if (widget.text != null && widget.text.trim() != "") {
       _textEditingController.text = widget.text;
     }
@@ -113,23 +112,6 @@ class _AddJournalState extends State<AddJournal> {
                         }
                       : null),
             ),
-            Opacity(
-              opacity: loading ? 0.5 : 1,
-              child: IconButton(
-                  icon: Icon(Icons.image_search, color: Colors.black),
-                  onPressed: !loading
-                      ? () async {
-                          var images = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      SelectImage(_methodChannel)));
-                          setState(() {
-                            widget.selctedimages.addAll(images);
-                          });
-                        }
-                      : null),
-            ),
           ],
         ),
         body: Container(
@@ -156,22 +138,17 @@ class _AddJournalState extends State<AddJournal> {
                                             children: [
                                           RichText(
                                             text: TextSpan(
-                                              text: time?.day
-                                                      .toString() +
-                                                  " ",
+                                              text: time?.day.toString() + " ",
                                               style: TextStyle(
                                                   color: Colors.green,
                                                   fontSize: 25,
-                                                  fontWeight:
-                                                      FontWeight.bold),
+                                                  fontWeight: FontWeight.bold),
                                               children: <TextSpan>[
                                                 TextSpan(
-                                                  text:  time !=
-                                                          null
+                                                  text: time != null
                                                       ? converter
                                                           .convertNumberToMonthName(
-                                                              time
-                                                                  ?.month)
+                                                              time?.month)
                                                       : "",
                                                   style: TextStyle(
                                                       color: Colors.black),
@@ -180,8 +157,7 @@ class _AddJournalState extends State<AddJournal> {
                                             ),
                                           ),
                                           Text(
-                                              time?.year
-                                                      .toString() +
+                                              time?.year.toString() +
                                                   " " +
                                                   converter
                                                       .convertNumberToWeekDayName(
@@ -199,30 +175,19 @@ class _AddJournalState extends State<AddJournal> {
                                           var selecteddate =
                                               await showDatePicker(
                                                   context: context,
-                                                  initialDate:
-                                                        dateTime.value,
-                                                  firstDate:
-                                                      DateTime(
-                                                         dateTime.value
-                                                                  .year -
-                                                              5),
-                                                  lastDate:
-                                                      dateTime.value);
+                                                  initialDate: dateTime.value,
+                                                  firstDate: DateTime(
+                                                      dateTime.value.year - 5),
+                                                  lastDate: dateTime.value);
 
                                           if (selecteddate != null &&
-                                              selecteddate !=
-                                                dateTime.value) {
-                                           
-                                             dateTime.value =
-                                                  DateTime(
-                                                      selecteddate.year,
-                                                      selecteddate.month,
-                                                      selecteddate.day,
-                                                     dateTime.value
-                                                          .hour,
-                                                     dateTime.value
-                                                          .minute);
-                                           
+                                              selecteddate != dateTime.value) {
+                                            dateTime.value = DateTime(
+                                                selecteddate.year,
+                                                selecteddate.month,
+                                                selecteddate.day,
+                                                dateTime.value.hour,
+                                                dateTime.value.minute);
                                           }
                                         }
                                       : null)
@@ -231,43 +196,36 @@ class _AddJournalState extends State<AddJournal> {
                             child: Row(
                           children: [
                             ValueListenableBuilder(
-                              valueListenable: dateTime,
-                                                            builder:(context,time,child){
-return Text(
-                                converter.convert24To12(
-                                  time.hour,
-                                  time.minute),
-                                                           
-                                style: TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold),
-                              );
-                               } 
-                            ),
+                                valueListenable: dateTime,
+                                builder: (context, time, child) {
+                                  return Text(
+                                    converter.convert24To12(
+                                        time.hour, time.minute),
+                                    style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  );
+                                }),
                             IconButton(
-                                icon: Icon(Icons.lock_clock,
-                                    color: Colors.grey),
+                                icon:
+                                    Icon(Icons.lock_clock, color: Colors.grey),
                                 onPressed: !loading
                                     ? () async {
-                                        var selectedTime =
-                                            await showTimePicker(
-                                                context: context,
-                                                initialTime: TimeOfDay.now());
+                                        var selectedTime = await showTimePicker(
+                                            context: context,
+                                            initialTime: TimeOfDay.now());
                                         if (selectedTime != null &&
                                             !(dateTime.value.hour ==
                                                     selectedTime.hour &&
-                                               dateTime.value
-                                                        .minute ==
+                                                dateTime.value.minute ==
                                                     selectedTime.minute)) {
-                                          
-                                           dateTime.value = DateTime(
-                                                dateTime.value.year,
+                                          dateTime.value = DateTime(
+                                              dateTime.value.year,
                                               dateTime.value.month,
-                                               dateTime.value.day,
-                                                selectedTime.hour,
-                                                selectedTime.minute);
-                                         
+                                              dateTime.value.day,
+                                              selectedTime.hour,
+                                              selectedTime.minute);
                                         }
                                       }
                                     : null)
@@ -297,11 +255,14 @@ return Text(
                                     var images = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                SelectImage(_methodChannel)));
-                                    setState(() {
-                                      nowSelectedImages.addAll(images);
-                                    });
+                                            builder: (context) => SelectImage(
+                                                  selectOnlyOneImage: false,
+                                                )));
+                                    if (images != null && images.length> 0) {
+                                      setState(() {
+                                        nowSelectedImages.addAll(images);
+                                      });
+                                    }
                                   }
                                 : null,
                           ),
@@ -343,9 +304,8 @@ return Text(
                               fontWeight: FontWeight.w500,
                               letterSpacing: 2.0,
                               fontSize: 20)),
-                      onPressed: !loading &&
-                             widget.update || (textfiled != null &&
-                              textfiled.trim() != "")
+                      onPressed: !loading && widget.update ||
+                              (textfiled != null && textfiled.trim() != "")
                           ? () async {
                               setState(() {
                                 loading = true;
@@ -356,7 +316,7 @@ return Text(
                                     user,
                                     widget.id,
                                     _textEditingController.text,
-                                   dateTime.value,
+                                    dateTime.value,
                                     widget.selectedTags,
                                     widget.selctedimages,
                                     nowSelectedImages,
@@ -367,7 +327,7 @@ return Text(
                                     context,
                                     user,
                                     widget.selectedTags,
-                                  dateTime.value,
+                                    dateTime.value,
                                     _textEditingController.text,
                                     loading);
                               }
@@ -413,8 +373,9 @@ return Text(
                             var images = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        SelectImage(_methodChannel)));
+                                    builder: (context) => SelectImage(
+                                          selectOnlyOneImage: false,
+                                        )));
                             setState(() {
                               nowSelectedImages.addAll(images);
                             });
