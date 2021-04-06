@@ -20,9 +20,9 @@ class _EmailVerfiState extends State<EmailVerfi> {
     super.initState();
   }
 
-  checkEmailVerfication(_) {
+  checkEmailVerfication(_) async {
     user = FirebaseAuth.instance.currentUser;
-    user.reload();
+   await user.reload();
     if (user.emailVerified) {
       timer.cancel();
       Navigator.pushReplacement(

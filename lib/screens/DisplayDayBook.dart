@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:daybook/screens/Add_journal.dart';
 import 'package:daybook/utils/converter.dart';
 import 'package:daybook/utils/utils.dart';
 import 'package:daybook/widgets/carousel/carousel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DisplayDayBook extends StatelessWidget {
@@ -117,6 +119,44 @@ class DisplayDayBook extends StatelessWidget {
                               text: text,
                               update: true,
                               id: id)));
+                }),
+            IconButton(
+                icon: Icon(Icons.delete, color: Colors.black),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Text('Do you what to delete permanently?'),
+                          actions: [
+                            FlatButton(
+                                onPressed: () async {
+                                  User user = FirebaseAuth.instance.currentUser;
+                                  if (user != null) {
+                                    FirebaseFirestore.instance
+                                        .collection("daybooks")
+                                        .doc(user.email)
+                                        .collection(user.uid)
+                                        .doc(id)
+                                        .delete()
+                                        .whenComplete(() {
+                                      int count = 0;
+                                      Navigator.of(context)
+                                          .popUntil((_) => count++ >= 2);
+                                    });
+                                  } else {
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: Text('yes')),
+                            FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text('cancel')),
+                          ],
+                        );
+                      });
                 })
           ],
         ),
